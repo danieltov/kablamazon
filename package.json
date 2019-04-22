@@ -1,0 +1,23 @@
+{
+  "name": "kablamazon",
+  "version": "1.0.0",
+  "description": "Node + MySQL Project",
+  "main": "run.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danieltov/kablamazon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danieltov/kablamazon/issues"
+  },
+  "homepage": "https://github.com/danieltov/kablamazon#readme",
+  "dependencies": {
+    "inquirer": "^6.3.1"
+  }
+}
