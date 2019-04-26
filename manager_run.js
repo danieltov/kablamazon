@@ -1,6 +1,7 @@
 // CONSTANTS
 const mysql = require('mysql'),
     inquirer = require('inquirer'),
+    chalk = require('chalk'),
     global = require('./global.js'),
     connection = mysql.createConnection({
         host: 'localhost',
@@ -75,27 +76,58 @@ function addInventory() {
         function(err, res) {
             if (err) throw err;
             inventory = res;
-            console.log('Fetching current iventory');
+            console.log('Fetching current iventory...');
             console.table(inventory);
-            inquirer.prompt([
-                {
-                    type: 'input',
-                    name: 'item_id',
-                    message:
-                        "Enter the item_id of product you'd like to re-order.",
-                    validate: global.isNum
-                }
-            ]);
+            inquirer
+                .prompt([
+                    {
+                        type: 'input',
+                        name: 'item_id',
+                        message:
+                            "Enter the item_id of product you'd like to re-order.",
+                        validate: global.isNum
+                    },
+                    {
+                        type: 'input',
+                        name: 'newStock',
+                        message: 'Enter amount of new stock you want to order',
+                        validate: global.isNum
+                    }
+                ])
+                .then(function(answers) {
+                    for (let i = 0; i < inventory.length; i++) {
+                        if (inventory[i].item_id == answers.item_id) {
+                            connection.query('UPDATE products SET ? WHERE ?', [
+                                {
+                                    stock_quantity:
+                                        answer.newStock +
+                                        inventory[i].stock_quantity
+                                },
+                                {
+                                    item_id: answer.item_id
+                                }
+                            ]);
+                            console.log('Inventory was updated!');
+                            connection.query(
+                                `SELECT item_id, product_name, stock_quantity FROM products WHERE item_id = ${
+                                    answers.item_id
+                                }`,
+                                function(err, res) {
+                                    if (err) throw err;
+                                    console.table(res);
+                                }
+                            );
+                            connection.end();
+                        } else {
+                            console.log(
+                                'Did not find item_id. Please try again.'
+                            );
+                            start();
+                        }
+                    }
+                });
         }
     );
-    connection.query('UPDATE products SET ? WHERE ?', [
-        {
-            stock_quantity: answer.newStock + inventory[i].stock_quantity
-        },
-        {
-            item_id: answer.item_id
-        }
-    ]);
 }
 
 connection.connect(function(err) {

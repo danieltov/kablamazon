@@ -1,6 +1,7 @@
 // CONSTANTS
 const mysql = require('mysql'),
     inquirer = require('inquirer'),
+    chalk = require('chalk'),
     global = require('./global.js'),
     connection = mysql.createConnection({
         host: 'localhost',
@@ -38,39 +39,57 @@ function start() {
                 }
             ])
             .then(function(answers) {
+                let chosenItem;
                 for (let i = 0; i < inventory.length; i++) {
                     if (inventory[i].item_id == answers.item_id) {
-                        if (inventory[i].stock_quantity > answers.quantity) {
-                            connection.query(
-                                'UPDATE products SET ? WHERE ?',
-                                [
-                                    {
-                                        stock_quantity:
-                                            inventory[i].stock_quantity -
-                                            answers.quantity
-                                    },
-                                    {
-                                        item_id: answers.item_id
-                                    }
-                                ],
-                                function(err, res) {
-                                    if (err) throw err;
-                                    console.log(
-                                        `Purchase complete.
-                                \nThat set you back $${inventory[i].price *
-                                    answers.quantity}. 
-                                \nEnjoy your ${inventory[i].product_name}!`
-                                    );
-                                    connection.end();
-                                }
-                            );
-                        } else {
-                            console.log(
-                                'Insufficient stock, cannot complete purchase. Please, try again.'
-                            );
-                            start();
-                        }
+                        chosenItem = inventory[i];
                     }
+                }
+
+                if (typeof chosenItem !== 'object') {
+                    console.log(
+                        chalk.bgRed.bold(
+                            'Did not find that item. Please try again.'
+                        )
+                    );
+                    start();
+                    return;
+                }
+
+                if (chosenItem.stock_quantity > answers.quantity) {
+                    connection.query(
+                        'UPDATE products SET ? WHERE ?',
+                        [
+                            {
+                                stock_quantity:
+                                    chosenItem.stock_quantity - answers.quantity
+                            },
+                            {
+                                item_id: answers.item_id
+                            }
+                        ],
+                        function(err, res) {
+                            if (err) throw err;
+                            console.log(
+                                chalk.bgGreen.bold(
+                                    `Purchase complete.
+                                \nThat set you back $${chosenItem.price *
+                                    answers.quantity}.
+                                \nEnjoy your ${chosenItem.product_name}!`
+                                )
+                            );
+                            connection.end();
+                        }
+                    );
+                } else {
+                    console.log(
+                        chalk.bgRed.bold(
+                            chalk.bgRed.bold(
+                                'Insufficient stock, cannot complete purchase. Please, try again.'
+                            )
+                        )
+                    );
+                    start();
                 }
             });
     });
