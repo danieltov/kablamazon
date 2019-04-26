@@ -19,13 +19,7 @@ function start() {
         console.log(
             `Welcome to Kablamazon! Check out our inventory of random things. \n=== AVAILABLE PRODUCTS ===\n`
         );
-        inventory.forEach(x =>
-            console.log(
-                `Product ID: ${x.item_id} - ${x.product_name} - $${
-                    x.price
-                }\n=================================\n`
-            )
-        );
+        console.table(inventory);
         inquirer
             .prompt([
                 {
@@ -62,7 +56,7 @@ function start() {
                                     if (err) throw err;
                                     console.log(
                                         `Purchase complete.
-                                \nThat set you back ${inventory[i].price *
+                                \nThat set you back $${inventory[i].price *
                                     answers.quantity}. 
                                 \nEnjoy your ${inventory[i].product_name}!`
                                     );
@@ -89,9 +83,5 @@ function isNum(val) {
 
 connection.connect(function(err) {
     if (err) throw err;
-    // functions
     start();
 });
-
-// test
-// another test
