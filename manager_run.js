@@ -50,7 +50,7 @@ function start() {
 function viewProducts() {
     connection.query('SELECT * FROM products', function(err, res) {
         if (err) throw err;
-        console.log('Fetching all products...');
+        console.log(chalk.bgBlue.bold('Fetching all products...'));
         console.table(res);
         connection.end();
     });
@@ -62,7 +62,9 @@ function lowInventory() {
         function(err, res) {
             if (err) throw err;
             console.log(
-                'Fetching products with less than 50 items in stock...'
+                chalk.bgBlue.bold(
+                    'Fetching products with less than 50 items in stock...'
+                )
             );
             console.table(res);
         }
@@ -76,7 +78,7 @@ function addInventory() {
         function(err, res) {
             if (err) throw err;
             inventory = res;
-            console.log('Fetching current iventory...');
+            console.log(chalk.bgBlue.bold('Fetching current iventory...'));
             console.table(inventory);
             inquirer
                 .prompt([
@@ -107,7 +109,9 @@ function addInventory() {
                                     item_id: answer.item_id
                                 }
                             ]);
-                            console.log('Inventory was updated!');
+                            console.log(
+                                chalk.bgGreen.bold('Inventory was updated!')
+                            );
                             connection.query(
                                 `SELECT item_id, product_name, stock_quantity FROM products WHERE item_id = ${
                                     answers.item_id
@@ -120,7 +124,9 @@ function addInventory() {
                             connection.end();
                         } else {
                             console.log(
-                                'Did not find item_id. Please try again.'
+                                chalk.bgRed.bold(
+                                    'Did not find item_id. Please try again.'
+                                )
                             );
                             start();
                         }
