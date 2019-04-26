@@ -39,13 +39,7 @@ function start() {
                 }
             ])
             .then(function(answers) {
-                let chosenItem;
-                for (let i = 0; i < inventory.length; i++) {
-                    if (inventory[i].item_id == answers.item_id) {
-                        chosenItem = inventory[i];
-                    }
-                }
-
+                let chosenItem = global.findItem(inventory, answers);
                 if (typeof chosenItem !== 'object') {
                     console.log(
                         chalk.bgRed.bold(
@@ -55,7 +49,6 @@ function start() {
                     start();
                     return;
                 }
-
                 if (chosenItem.stock_quantity > answers.quantity) {
                     connection.query(
                         'UPDATE products SET ? WHERE ?',
@@ -72,10 +65,10 @@ function start() {
                             if (err) throw err;
                             console.log(
                                 chalk.bgGreen.bold(
-                                    `Purchase complete.
-                                \nThat set you back $${chosenItem.price *
-                                    answers.quantity}.
-                                \nEnjoy your ${chosenItem.product_name}!`
+                                    `Purchase complete. That set you back $${chosenItem.price *
+                                        answers.quantity}. Enjoy your ${
+                                        chosenItem.product_name
+                                    }!`
                                 )
                             );
                             connection.end();

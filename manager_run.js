@@ -75,7 +75,7 @@ function addInventory() {
     let inventory = [];
     connection.query(
         'SELECT item_id, product_name, stock_quantity FROM products',
-        function(err, res) {
+        function (err, res) {
             if (err) throw err;
             inventory = res;
             console.log(chalk.bgBlue.bold('Fetching current iventory...'));
@@ -96,45 +96,37 @@ function addInventory() {
                         validate: global.isNum
                     }
                 ])
-                .then(function(answers) {
+                .then(function (answers) {
+                    let chosenItem;
                     for (let i = 0; i < inventory.length; i++) {
                         if (inventory[i].item_id == answers.item_id) {
-                            connection.query('UPDATE products SET ? WHERE ?', [
-                                {
-                                    stock_quantity:
-                                        answer.newStock +
-                                        inventory[i].stock_quantity
-                                },
-                                {
-                                    item_id: answer.item_id
-                                }
-                            ]);
-                            console.log(
-                                chalk.bgGreen.bold('Inventory was updated!')
-                            );
-                            connection.query(
-                                `SELECT item_id, product_name, stock_quantity FROM products WHERE item_id = ${
-                                    answers.item_id
-                                }`,
-                                function(err, res) {
-                                    if (err) throw err;
-                                    console.table(res);
-                                }
-                            );
-                            connection.end();
-                        } else {
-                            console.log(
-                                chalk.bgRed.bold(
-                                    'Did not find item_id. Please try again.'
-                                )
-                            );
-                            start();
+                            chosenItem = inventory[i];
                         }
                     }
-                });
-        }
-    );
-}
+                    connection.query('UPDATE products SET ? WHERE ?', [
+                        {
+                            stock_quantity:
+                                answer.newStock +
+                                chosenItem.stock_quantity
+                        },
+                        {
+                            item_id: answer.item_id
+                        }
+                    ]);
+                    console.log(
+                        chalk.bgGreen.bold('Inventory was updated!')
+                    );
+                    connection.query(
+                        `SELECT item_id, product_name, stock_quantity FROM products WHERE item_id = ${
+                        answers.item_id
+                        }`,
+                        function (err, res) {
+                            if (err) throw err;
+                            console.table(res);
+                        }
+                    );
+                    connection.end();
+                })
 
 connection.connect(function(err) {
     if (err) throw err;
