@@ -1,6 +1,7 @@
 // CONSTANTS
 const mysql = require('mysql'),
     inquirer = require('inquirer'),
+    global = require('./global.js'),
     connection = mysql.createConnection({
         host: 'localhost',
         port: 8889,
@@ -35,6 +36,9 @@ function start() {
                 case 'View Low Inventory':
                     lowInventory();
                     break;
+                case 'Add to Inventory':
+                    addInventory();
+                    break;
                 case 'Add New Product':
                     newProduct();
                     break;
@@ -62,6 +66,36 @@ function lowInventory() {
             console.table(res);
         }
     );
+}
+
+function addInventory() {
+    let inventory = [];
+    connection.query(
+        'SELECT item_id, product_name, stock_quantity FROM products',
+        function(err, res) {
+            if (err) throw err;
+            inventory = res;
+            console.log('Fetching current iventory');
+            console.table(inventory);
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'item_id',
+                    message:
+                        "Enter the item_id of product you'd like to re-order.",
+                    validate: global.isNum
+                }
+            ]);
+        }
+    );
+    connection.query('UPDATE products SET ? WHERE ?', [
+        {
+            stock_quantity: answer.newStock + inventory[i].stock_quantity
+        },
+        {
+            item_id: answer.item_id
+        }
+    ]);
 }
 
 connection.connect(function(err) {

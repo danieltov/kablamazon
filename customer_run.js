@@ -1,6 +1,7 @@
 // CONSTANTS
 const mysql = require('mysql'),
     inquirer = require('inquirer'),
+    global = require('./global.js'),
     connection = mysql.createConnection({
         host: 'localhost',
         port: 8889,
@@ -27,13 +28,13 @@ function start() {
                     name: 'item_id',
                     message:
                         'What do you want to buy? \n\n Enter the Product ID:',
-                    validate: isNum
+                    validate: global.isNum
                 },
                 {
                     type: 'input',
                     name: 'quantity',
                     message: 'How many would you like?',
-                    validate: isNum
+                    validate: global.isNum
                 }
             ])
             .then(function(answers) {
@@ -73,12 +74,6 @@ function start() {
                 }
             });
     });
-}
-
-function isNum(val) {
-    if (isNaN(val))
-        return console.log('Please enter a valid Product ID number');
-    return true;
 }
 
 connection.connect(function(err) {
