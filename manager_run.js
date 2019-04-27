@@ -135,6 +135,51 @@ function addInventory() {
     );
 }
 
+function newProduct() {
+    // need: product_name, department_name, price, stock_quantity
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'product_name',
+                message: 'Enter product name:'
+            },
+            {
+                type: 'input',
+                name: 'department_name',
+                message: 'Enter department name:'
+            },
+            {
+                type: 'input',
+                name: 'price',
+                message: 'Enter price:',
+                validate: global.isNum
+            },
+            {
+                type: 'input',
+                name: 'stock_quantity',
+                message: 'Enter stock quantity:',
+                validate: global.isNum
+            }
+        ])
+        .then(function(answers) {
+            console.log(answers);
+            connection.query(
+                `INSERT INTO kablamazon_db.products (product_name, department_name, price, stock_quantity) 
+                VALUES (${answers.product_name}, ${
+                    answers.department_name
+                }, ${parseInt(answers.price)}, ${parseInt(
+                    answers.stock_quantity
+                )})`,
+                function(err, res) {
+                    if (err) throw err;
+                    console.log(chalk.bgGreen.bold('Successfully added item!'));
+                    viewProducts();
+                }
+            );
+        });
+}
+
 connection.connect(function(err) {
     if (err) throw err;
     start();
