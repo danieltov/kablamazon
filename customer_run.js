@@ -4,7 +4,6 @@ const dot = require('dotenv').config(),
     mysql = require('mysql'),
     inquirer = require('inquirer'),
     chalk = require('chalk'),
-    Table = require('cli-table'),
     global = require('./global.js'),
     log = console.log,
     connection = mysql.createConnection({

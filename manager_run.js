@@ -53,7 +53,19 @@ function viewProducts() {
     connection.query('SELECT * FROM products', function(err, res) {
         if (err) throw err;
         log(chalk.bgBlue.bold('Fetching all products...'));
-        console.table(res);
+        log(
+            chalk.green(
+                '\n\n' +
+                    global.createTable(
+                        res,
+                        'item_id',
+                        'product_name',
+                        'price',
+                        'stock_quantity',
+                        'sales'
+                    )
+            )
+        );
         connection.end();
     });
 }
@@ -68,7 +80,19 @@ function lowInventory() {
                     'Fetching products with less than 50 items in stock...'
                 )
             );
-            console.table(res);
+            log(
+                chalk.green(
+                    '\n\n' +
+                        global.createTable(
+                            res,
+                            'item_id',
+                            'product_name',
+                            'price',
+                            'stock_quantity',
+                            'sales'
+                        )
+                )
+            );
         }
     );
 }
@@ -81,7 +105,17 @@ function addInventory() {
             if (err) throw err;
             inventory = res;
             log(chalk.bgBlue.bold('Fetching current iventory...'));
-            console.table(inventory);
+            log(
+                chalk.green(
+                    '\n\n' +
+                        global.createTable(
+                            res,
+                            'item_id',
+                            'product_name',
+                            'stock_quantity'
+                        )
+                )
+            );
             inquirer
                 .prompt([
                     {
