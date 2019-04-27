@@ -4,6 +4,7 @@ const dot = require('dotenv').config(),
     mysql = require('mysql'),
     inquirer = require('inquirer'),
     chalk = require('chalk'),
+    Table = require('cli-table'),
     global = require('./global.js'),
     log = console.log,
     connection = mysql.createConnection({
@@ -23,7 +24,17 @@ function storeFront() {
 
         inventory = res;
 
-        console.table(inventory);
+        log(
+            chalk.green(
+                '\n\n' +
+                    global.createTable(
+                        inventory,
+                        'item_id',
+                        'product_name',
+                        'price'
+                    )
+            )
+        );
 
         inquirer
             .prompt([
@@ -43,7 +54,6 @@ function storeFront() {
             ])
             .then(function(answers) {
                 let chosenItem = global.findItem(inventory, answers);
-                console.log(chosenItem);
                 if (typeof chosenItem !== 'object') {
                     log(
                         chalk.bgRed.bold(
