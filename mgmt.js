@@ -90,11 +90,11 @@ function lowInventory() {
 
 function addInventory() {
     let inventory = [];
+
     g.con.query(
         'SELECT item_id, product_name, stock_quantity FROM products',
         function(err, res) {
             if (err) throw err;
-            inventory = res;
             g.log(g.chalk.bgBlue.bold('Fetching current iventory...'));
             g.log(
                 g.chalk.green(
@@ -107,7 +107,7 @@ function addInventory() {
                         )
                 )
             );
-
+            inventory = res;
             g.inquirer
                 .prompt([
                     {
@@ -135,40 +135,49 @@ function addInventory() {
                         start();
                         return;
                     }
-                    g.con.query('UPDATE products SET ? WHERE ?', [
-                        {
-                            stock_quantity:
-                                parseInt(answers.newStock) +
-                                parseInt(chosenItem.stock_quantity)
-                        },
-                        {
-                            item_id: chosenItem.item_id
-                        }
-                    ]);
+                    let id = chosenItem.item_id;
+                    let stock =
+                        parseInt(answers.newStock) +
+                        parseInt(chosenItem.stock_quantity);
 
-                    g.log(g.chalk.bgGreen.bold('Inventory was updated!'));
-
-                    g.con.query(
-                        `SELECT item_id, product_name, stock_quantity FROM products WHERE item_id = ${
-                            chosenItem.item_id
-                        }`,
-                        function(err, res) {
-                            if (err) throw err;
-                            g.log(
-                                g.chalk.green(
-                                    '\n\n' +
-                                        g.createTable(
-                                            res,
-                                            'item_id',
-                                            'product_name',
-                                            'stock_quantity'
-                                        )
-                                )
-                            );
-                            manager();
-                        }
-                    );
+                    restock(id, stock);
                 });
+        }
+    );
+}
+
+function restock(id, stock) {
+    g.con.query(
+        'UPDATE products SET ? WHERE ?',
+        [
+            {
+                stock_quantity: stock
+            },
+            {
+                item_id: id
+            }
+        ],
+        function(err, res) {
+            if (err) throw err;
+            g.log(g.chalk.bgGreen.bold('Inventory was updated!'));
+            g.con.query(
+                `SELECT item_id, product_name, stock_quantity FROM products WHERE item_id = ${id}`,
+                function(err, res) {
+                    if (err) throw err;
+                    g.log(
+                        g.chalk.green(
+                            '\n\n' +
+                                g.createTable(
+                                    res,
+                                    'item_id',
+                                    'product_name',
+                                    'stock_quantity'
+                                )
+                        )
+                    );
+                    manager();
+                }
+            );
         }
     );
 }
@@ -200,22 +209,31 @@ function newProduct() {
             }
         ])
         .then(function(answers) {
-            g.log(answers);
-            g.con.query(
-                `INSERT INTO kablamazon_db.products (product_name, department_name, price, stock_quantity) 
-                VALUES (${answers.product_name}, ${
-                    answers.department_name
-                }, ${parseInt(answers.price)}, ${parseInt(
-                    answers.stock_quantity
-                )})`,
-                function(err, res) {
-                    if (err) throw err;
-                    g.log(g.chalk.bgGreen.bold('Successfully added item!'));
-                    viewProducts();
-                }
-            );
-            manager();
+            let name = answers.product_name,
+                dept = answers.department_name,
+                price = answers.price,
+                stock = answers.stock_quantity;
+
+            createItem(name, dept, price, stock);
         });
+}
+
+function createItem(name, dept, price, stock) {
+    g.con.query(
+        `INSERT INTO products 
+                SET ?`,
+        {
+            product_name: name,
+            department_name: dept,
+            price: price,
+            stock_quantity: stock
+        },
+        function(err, res) {
+            if (err) throw err;
+            g.log(g.chalk.bgGreen.bold('Successfully added item!'));
+            viewProducts();
+        }
+    );
 }
 
 g.con.connect(function(err) {

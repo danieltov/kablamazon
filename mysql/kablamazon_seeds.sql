@@ -16,8 +16,6 @@ CREATE TABLE department (
     departent_id int auto_increment not null, 
     department_name varchar(50) not null,
     overhead_costs decimal(10,2) not null,
-    product_sales int null default 0,
-    total_profit decimal(10,2) null default 0,
     primary key (departent_id)
 );
 
