@@ -1,23 +1,10 @@
 // CONSTANTS
-const dot = require('dotenv').config(),
-    keys = require('./keys.js'),
-    mysql = require('mysql'),
-    inquirer = require('inquirer'),
-    chalk = require('chalk'),
-    global = require('./global.js'),
-    log = console.log,
-    connection = mysql.createConnection({
-        host: keys.sql.host,
-        port: 8889,
-        user: keys.sql.user,
-        password: keys.sql.password,
-        database: keys.sql.database
-    });
+const g = require('./global.js');
 
 // FUNCTIONS
 
 function manager() {
-    inquirer
+    g.inquirer
         .prompt([
             {
                 type: 'list',
@@ -50,13 +37,13 @@ function manager() {
 }
 
 function viewProducts() {
-    connection.query('SELECT * FROM products', function(err, res) {
+    g.con.query('select * from products', function(err, res) {
         if (err) throw err;
-        log(chalk.bgBlue.bold('Fetching all products...'));
-        log(
-            chalk.green(
+        g.log(g.chalk.bgBlue.bold('Fetching all products...'));
+        g.log(
+            g.chalk.green(
                 '\n\n' +
-                    global.createTable(
+                    g.createTable(
                         res,
                         'item_id',
                         'product_name',
@@ -66,49 +53,49 @@ function viewProducts() {
                     )
             )
         );
-        connection.end();
     });
+    g.con.end();
 }
 
 function lowInventory() {
-    connection.query(
-        'SELECT * FROM products WHERE stock_quantity < 50',
-        function(err, res) {
-            if (err) throw err;
-            log(
-                chalk.bgBlue.bold(
-                    'Fetching products with less than 50 items in stock...'
-                )
-            );
-            log(
-                chalk.green(
-                    '\n\n' +
-                        global.createTable(
-                            res,
-                            'item_id',
-                            'product_name',
-                            'price',
-                            'stock_quantity',
-                            'sales'
-                        )
-                )
-            );
-        }
-    );
+    g.con.query('SELECT * FROM products WHERE stock_quantity < 50', function(
+        err,
+        res
+    ) {
+        if (err) throw err;
+        g.log(
+            g.chalk.bgBlue.bold(
+                'Fetching products with less than 50 items in stock...'
+            )
+        );
+        g.log(
+            g.chalk.green(
+                '\n\n' +
+                    g.createTable(
+                        res,
+                        'item_id',
+                        'product_name',
+                        'price',
+                        'stock_quantity',
+                        'sales'
+                    )
+            )
+        );
+    });
 }
 
 function addInventory() {
     let inventory = [];
-    connection.query(
+    g.con.query(
         'SELECT item_id, product_name, stock_quantity FROM products',
         function(err, res) {
             if (err) throw err;
             inventory = res;
-            log(chalk.bgBlue.bold('Fetching current iventory...'));
-            log(
-                chalk.green(
+            g.log(g.chalk.bgBlue.bold('Fetching current iventory...'));
+            g.log(
+                g.chalk.green(
                     '\n\n' +
-                        global.createTable(
+                        g.createTable(
                             res,
                             'item_id',
                             'product_name',
@@ -116,34 +103,35 @@ function addInventory() {
                         )
                 )
             );
-            inquirer
+
+            g.inquirer
                 .prompt([
                     {
                         type: 'input',
                         name: 'item_id',
                         message:
                             "Enter the item_id of product you'd like to re-order.",
-                        validate: global.isNum
+                        validate: g.isNum
                     },
                     {
                         type: 'input',
                         name: 'newStock',
                         message: 'Enter amount of new stock you want to order',
-                        validate: global.isNum
+                        validate: g.isNum
                     }
                 ])
                 .then(function(answers) {
-                    let chosenItem = global.findItem(inventory, answers);
+                    let chosenItem = g.findItem(inventory, answers);
                     if (typeof chosenItem !== 'object') {
-                        log(
-                            chalk.bgRed.bold(
+                        g.log(
+                            g.chalk.bgRed.bold(
                                 'Did not find that item. Please try again.'
                             )
                         );
                         start();
                         return;
                     }
-                    connection.query('UPDATE products SET ? WHERE ?', [
+                    g.con.query('UPDATE products SET ? WHERE ?', [
                         {
                             stock_quantity:
                                 parseInt(answers.newStock) +
@@ -154,9 +142,9 @@ function addInventory() {
                         }
                     ]);
 
-                    log(chalk.bgGreen.bold('Inventory was updated!'));
+                    g.log(g.chalk.bgGreen.bold('Inventory was updated!'));
 
-                    connection.query(
+                    g.con.query(
                         `SELECT item_id, product_name, stock_quantity FROM products WHERE item_id = ${
                             chosenItem.item_id
                         }`,
@@ -165,7 +153,7 @@ function addInventory() {
                             console.table(res);
                         }
                     );
-                    connection.end();
+                    g.con.end();
                 });
         }
     );
@@ -173,7 +161,7 @@ function addInventory() {
 
 function newProduct() {
     // need: product_name, department_name, price, stock_quantity
-    inquirer
+    g.inquirer
         .prompt([
             {
                 type: 'input',
@@ -189,18 +177,18 @@ function newProduct() {
                 type: 'input',
                 name: 'price',
                 message: 'Enter price:',
-                validate: global.isNum
+                validate: g.isNum
             },
             {
                 type: 'input',
                 name: 'stock_quantity',
                 message: 'Enter stock quantity:',
-                validate: global.isNum
+                validate: g.isNum
             }
         ])
         .then(function(answers) {
-            log(answers);
-            connection.query(
+            g.log(answers);
+            g.con.query(
                 `INSERT INTO kablamazon_db.products (product_name, department_name, price, stock_quantity) 
                 VALUES (${answers.product_name}, ${
                     answers.department_name
@@ -209,18 +197,18 @@ function newProduct() {
                 )})`,
                 function(err, res) {
                     if (err) throw err;
-                    log(chalk.bgGreen.bold('Successfully added item!'));
+                    g.log(g.chalk.bgGreen.bold('Successfully added item!'));
                     viewProducts();
                 }
             );
         });
 }
 
-connection.connect(function(err) {
+g.con.connect(function(err) {
     if (err) throw err;
-    log('                                              Welcome To');
-    log(
-        chalk.bgCyan
+    g.log('                                              Welcome To');
+    g.log(
+        g.chalk.bgCyan
             .bold(` __    __            __        __                                                                 
 /  |  /  |          /  |      /  |                                                                
 $$ | /$$/   ______  $$ |____  $$ |  ______   _____  ____    ______   ________   ______   _______  
@@ -231,8 +219,8 @@ $$ |$$  \\ /$$$$$$$ |$$ |__$$ |$$ |/$$$$$$$ |$$ | $$ | $$ |/$$$$$$$ | /$$$$/__ $
 $$ | $$  |$$    $$ |$$    $$/ $$ |$$    $$ |$$ | $$ | $$ |$$    $$ |/$$      |$$    $$/ $$ |  $$ |
 $$/   $$/  $$$$$$$/ $$$$$$$/  $$/  $$$$$$$/ $$/  $$/  $$/  $$$$$$$/ $$$$$$$$/  $$$$$$/  $$/   $$/ `)
     );
-    log(
-        chalk.italic.bold(
+    g.log(
+        g.chalk.italic.bold(
             '                                              For Managers'
         )
     );

@@ -1,4 +1,4 @@
-DROP DATABASE kablamazon_db;
+DROP DATABASE IF EXISTS kablamazon_db;
 CREATE DATABASE kablamazon_db;
 USE kablamazon_db;
 
@@ -12,5 +12,5 @@ CREATE TABLE products (
     primary key (item_id)
 );
 
-insert into products (product_name, department_name, price, stock_quantity)
-values ("Jogger Pants, Navy", "Clothing", 35, 400), ("Cane Umbrella, Black", "Clothing", 60, 200), ("Two Gallon Fish Tank", "Pet Supplies", 20, 55), ("Bladeless House Fan", "Housewares", 200, 60), ("Airfryer", "Kitchenware", 30, 100), ("Wireless Phone Charging Pad", "Electronics", 20, 500), ("Flip Flops, Blue", "Apparel", 15, 200), ("iPhone Case", "Electronics", 30, 250), ("Rechargable Flashlights", "Tools", 15, 200), ("14 in 1 Minitool", "Tools", 10, 25), ("Men's Button Down Shirt, Checkered", "Clothing", 40, 400), ("Next-Gen Gaming Console", "Electronics", 400, 7);
+insert into products (product_name, department_name, price, stock_quantity, sales)
+values ("Jogger Pants, Navy", "Clothing", 35, 60, 30), ("Cane Umbrella, Black", "Clothing", 60, 11, 15), ("Two Gallon Fish Tank", "Pet Supplies", 20, 70, 5), ("Bladeless House Fan", "Housewares", 200, 10, 15), ("Airfryer", "Kitchenware", 30, 17, 23), ("Wireless Phone Charging Pad", "Electronics", 20, 55, 55), ("Flip Flops, Blue", "Apparel", 15, 70, 36), ("iPhone Case", "Electronics", 30, 99, 213), ("Rechargabl5 Flashlights", "Tools", 15, 22, 16), ("14 in 1 Minitool", "Tools", 10, 25, 50), ("Men's Button Down Shirt, Checkered", "Clothing", 40, 70, 65), ("Next-Gen Gaming Console", "Electronics", 400, 7, 500);

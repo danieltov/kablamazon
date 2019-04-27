@@ -1,6 +1,26 @@
-const Table = require('cli-table');
+const dot = require('dotenv').config(),
+    keys = require('./keys.js'),
+    mysql = require('mysql'),
+    inquirer = require('inquirer'),
+    chalk = require('chalk'),
+    Table = require('cli-table'),
+    log = console.log,
+    con = mysql.createConnection({
+        host: keys.sql.host,
+        port: 8889,
+        user: keys.sql.user,
+        password: keys.sql.password,
+        database: keys.sql.database
+    });
 
 module.exports = {
+    dot,
+    keys,
+    mysql,
+    inquirer,
+    chalk,
+    log,
+    con,
     isNum: function(val) {
         {
             if (isNaN(val))
@@ -14,6 +34,12 @@ module.exports = {
                 return source[i];
             }
         }
+    },
+    selectQuery: function(tab, ...cols) {
+        con.query(`SELECT ${cols} FROM ${tab}`, function(err, data) {
+            if (err) throw err;
+            return data;
+        });
     },
     createTable: function(data, ...args) {
         let table = new Table({

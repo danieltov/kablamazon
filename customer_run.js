@@ -1,61 +1,43 @@
 // CONSTANTS
-const dot = require('dotenv').config(),
-    keys = require('./keys.js'),
-    mysql = require('mysql'),
-    inquirer = require('inquirer'),
-    chalk = require('chalk'),
-    global = require('./global.js'),
-    log = console.log,
-    connection = mysql.createConnection({
-        host: keys.sql.host,
-        port: 8889,
-        user: keys.sql.user,
-        password: keys.sql.password,
-        database: keys.sql.database
-    });
+const g = require('./global.js');
 
 // FUNCTIONS
 
 function storeFront() {
     let inventory = [];
-    connection.query('SELECT * FROM products', function(err, res) {
+    g.con.query('SELECT * FROM products', function(err, res) {
         if (err) throw err;
 
         inventory = res;
 
-        log(
-            chalk.green(
+        g.log(
+            g.chalk.green(
                 '\n\n' +
-                    global.createTable(
-                        inventory,
-                        'item_id',
-                        'product_name',
-                        'price'
-                    )
+                    g.createTable(inventory, 'item_id', 'product_name', 'price')
             )
         );
 
-        inquirer
+        g.inquirer
             .prompt([
                 {
                     type: 'input',
                     name: 'item_id',
                     message:
                         'What do you want to buy? \n\n Enter the Product ID:',
-                    validate: global.isNum
+                    validate: g.isNum
                 },
                 {
                     type: 'input',
                     name: 'quantity',
                     message: 'How many would you like?',
-                    validate: global.isNum
+                    validate: g.isNum
                 }
             ])
             .then(function(answers) {
-                let chosenItem = global.findItem(inventory, answers);
+                let chosenItem = g.findItem(inventory, answers);
                 if (typeof chosenItem !== 'object') {
-                    log(
-                        chalk.bgRed.bold(
+                    g.log(
+                        g.chalk.bgRed.bold(
                             'Did not find that item. Please try again.'
                         )
                     );
@@ -67,8 +49,8 @@ function storeFront() {
                 if (chosenItem.stock_quantity > answers.quantity) {
                     makeSale(chosenItem, answers);
                 } else {
-                    log(
-                        chalk.bgRed.bold(
+                    g.log(
+                        g.chalk.bgRed.bold(
                             'Insufficient stock, cannot complete purchase. Please, try again.'
                         )
                     );
@@ -79,7 +61,7 @@ function storeFront() {
 }
 
 function makeSale(item, data) {
-    connection.query(
+    g.con.query(
         'UPDATE products SET ? WHERE ?',
         [
             {
@@ -93,22 +75,22 @@ function makeSale(item, data) {
         ],
         function(err, res) {
             if (err) throw err;
-            log(
-                chalk.bgGreen.bold(
+            g.log(
+                g.chalk.bgGreen.bold(
                     `Purchase complete. That set you back $${item.price *
                         data.quantity}. Enjoy your ${item.product_name}!`
                 )
             );
-            connection.end();
+            g.con.end();
         }
     );
 }
 
-connection.connect(function(err) {
+g.con.connect(function(err) {
     if (err) throw err;
-    log('                                              Welcome To');
-    log(
-        chalk.bgCyan
+    g.log('                                              Welcome To');
+    g.log(
+        g.chalk.bgCyan
             .bold(` __    __            __        __                                                                 
 /  |  /  |          /  |      /  |                                                                
 $$ | /$$/   ______  $$ |____  $$ |  ______   _____  ____    ______   ________   ______   _______  
