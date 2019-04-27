@@ -44,19 +44,19 @@ function addDept() {
             }
         ])
         .then(function(answers) {
-            g.log(insertDept(answers.name, answers.costs));
+            insertDept(answers.name, answers.costs);
         });
 }
 
 function insertDept(name, costs) {
-    console.log(name);
-    console.log(costs);
     g.con.query(
-        'INSERT INTO department (department_name, overhead_costs) VALUES ?',
+        'INSERT INTO department SET ?',
         { department_name: name, overhead_costs: parseInt(costs) },
         function(err, res) {
             if (err) throw err;
-            return res;
+            g.log(g.chalk.bgGreen.bold('Successfully added new department!'));
+            g.log(g.chalk.bgBlue.bold('\nTaking you back to the main menu...'));
+            supe();
         }
     );
 }
