@@ -14,7 +14,8 @@ function manager() {
                     'View Products for Sale',
                     'View Low Inventory',
                     'Add to Inventory',
-                    'Add New Product'
+                    'Add New Product',
+                    'Clock Out'
                 ]
             }
         ])
@@ -32,6 +33,8 @@ function manager() {
                 case 'Add New Product':
                     newProduct();
                     break;
+                default:
+                    g.con.end();
             }
         });
 }
@@ -53,8 +56,8 @@ function viewProducts() {
                     )
             )
         );
+        manager();
     });
-    g.con.end();
 }
 
 function lowInventory() {
@@ -81,6 +84,7 @@ function lowInventory() {
                     )
             )
         );
+        manager();
     });
 }
 
@@ -150,17 +154,26 @@ function addInventory() {
                         }`,
                         function(err, res) {
                             if (err) throw err;
-                            console.table(res);
+                            g.log(
+                                g.chalk.green(
+                                    '\n\n' +
+                                        g.createTable(
+                                            res,
+                                            'item_id',
+                                            'product_name',
+                                            'stock_quantity'
+                                        )
+                                )
+                            );
+                            manager();
                         }
                     );
-                    g.con.end();
                 });
         }
     );
 }
 
 function newProduct() {
-    // need: product_name, department_name, price, stock_quantity
     g.inquirer
         .prompt([
             {
@@ -201,6 +214,7 @@ function newProduct() {
                     viewProducts();
                 }
             );
+            manager();
         });
 }
 
