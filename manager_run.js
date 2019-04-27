@@ -1,28 +1,28 @@
 // CONSTANTS
 const dot = require('dotenv').config(),
-    sql = require('./sql.js'),
+    keys = require('./keys.js'),
     mysql = require('mysql'),
     inquirer = require('inquirer'),
     chalk = require('chalk'),
     global = require('./global.js'),
+    log = console.log,
     connection = mysql.createConnection({
-        host: sql.host,
-        port: sqp.port,
-        user: sql.user,
-        password: sql.password,
-        database: sql.database
+        host: keys.sql.host,
+        port: 8889,
+        user: keys.sql.user,
+        password: keys.sql.password,
+        database: keys.sql.database
     });
 
 // FUNCTIONS
 
-function start() {
+function manager() {
     inquirer
         .prompt([
             {
                 type: 'list',
                 name: 'action',
-                message:
-                    'Welcome to the Kablamazon Manager CLI. What would you like to do?',
+                message: 'What would you like to do today?',
                 choices: [
                     'View Products for Sale',
                     'View Low Inventory',
@@ -52,7 +52,7 @@ function start() {
 function viewProducts() {
     connection.query('SELECT * FROM products', function(err, res) {
         if (err) throw err;
-        console.log(chalk.bgBlue.bold('Fetching all products...'));
+        log(chalk.bgBlue.bold('Fetching all products...'));
         console.table(res);
         connection.end();
     });
@@ -63,7 +63,7 @@ function lowInventory() {
         'SELECT * FROM products WHERE stock_quantity < 50',
         function(err, res) {
             if (err) throw err;
-            console.log(
+            log(
                 chalk.bgBlue.bold(
                     'Fetching products with less than 50 items in stock...'
                 )
@@ -80,7 +80,7 @@ function addInventory() {
         function(err, res) {
             if (err) throw err;
             inventory = res;
-            console.log(chalk.bgBlue.bold('Fetching current iventory...'));
+            log(chalk.bgBlue.bold('Fetching current iventory...'));
             console.table(inventory);
             inquirer
                 .prompt([
@@ -101,7 +101,7 @@ function addInventory() {
                 .then(function(answers) {
                     let chosenItem = global.findItem(inventory, answers);
                     if (typeof chosenItem !== 'object') {
-                        console.log(
+                        log(
                             chalk.bgRed.bold(
                                 'Did not find that item. Please try again.'
                             )
@@ -120,7 +120,7 @@ function addInventory() {
                         }
                     ]);
 
-                    console.log(chalk.bgGreen.bold('Inventory was updated!'));
+                    log(chalk.bgGreen.bold('Inventory was updated!'));
 
                     connection.query(
                         `SELECT item_id, product_name, stock_quantity FROM products WHERE item_id = ${
@@ -165,7 +165,7 @@ function newProduct() {
             }
         ])
         .then(function(answers) {
-            console.log(answers);
+            log(answers);
             connection.query(
                 `INSERT INTO kablamazon_db.products (product_name, department_name, price, stock_quantity) 
                 VALUES (${answers.product_name}, ${
@@ -175,7 +175,7 @@ function newProduct() {
                 )})`,
                 function(err, res) {
                     if (err) throw err;
-                    console.log(chalk.bgGreen.bold('Successfully added item!'));
+                    log(chalk.bgGreen.bold('Successfully added item!'));
                     viewProducts();
                 }
             );
@@ -184,5 +184,23 @@ function newProduct() {
 
 connection.connect(function(err) {
     if (err) throw err;
-    start();
+    log('                                              Welcome To');
+    log(
+        chalk.bgCyan
+            .bold(` __    __            __        __                                                                 
+/  |  /  |          /  |      /  |                                                                
+$$ | /$$/   ______  $$ |____  $$ |  ______   _____  ____    ______   ________   ______   _______  
+$$ |/$$/   /      \\ $$      \\ $$ | /      \\ /     \\/    \\  /      \\ /        | /      \\ /       \\ 
+$$  $$<    $$$$$$  |$$$$$$$  |$$ | $$$$$$  |$$$$$$ $$$$  | $$$$$$  |$$$$$$$$/ /$$$$$$  |$$$$$$$  |
+$$$$$  \\   /    $$ |$$ |  $$ |$$ | /    $$ |$$ | $$ | $$ | /    $$ |  /  $$/  $$ |  $$ |$$ |  $$ |
+$$ |$$  \\ /$$$$$$$ |$$ |__$$ |$$ |/$$$$$$$ |$$ | $$ | $$ |/$$$$$$$ | /$$$$/__ $$ \\__$$ |$$ |  $$ |
+$$ | $$  |$$    $$ |$$    $$/ $$ |$$    $$ |$$ | $$ | $$ |$$    $$ |/$$      |$$    $$/ $$ |  $$ |
+$$/   $$/  $$$$$$$/ $$$$$$$/  $$/  $$$$$$$/ $$/  $$/  $$/  $$$$$$$/ $$$$$$$$/  $$$$$$/  $$/   $$/ `)
+    );
+    log(
+        chalk.italic.bold(
+            '                                              For Managers'
+        )
+    );
+    manager();
 });

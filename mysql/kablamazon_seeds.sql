@@ -1,13 +1,15 @@
+DROP DATABASE kablamazon_db;
 CREATE DATABASE kablamazon_db;
 USE kablamazon_db;
 
 CREATE TABLE products (
     item_id int auto_increment not null,
-    product_name charvar(50) not null,
-    department_name charvar(50) null,
+    product_name varchar(50) not null,
+    department_name varchar(50) null,
     price decimal(10,2) not null,
     stock_quantity int null,
-    primary key (id)
+    sales int null default 0,
+    primary key (item_id)
 );
 
 insert into products (product_name, department_name, price, stock_quantity)

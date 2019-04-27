@@ -1,5 +1,4 @@
-console.log('this is loaded');
-
+require('dotenv').config();
 exports.sql = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,

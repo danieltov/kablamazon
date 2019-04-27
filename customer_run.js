@@ -1,29 +1,30 @@
 // CONSTANTS
 const dot = require('dotenv').config(),
-    sql = require('./sql.js'),
+    keys = require('./keys.js'),
     mysql = require('mysql'),
     inquirer = require('inquirer'),
     chalk = require('chalk'),
     global = require('./global.js'),
+    log = console.log,
     connection = mysql.createConnection({
-        host: sql.host,
-        port: sqp.port,
-        user: sql.user,
-        password: sql.password,
-        database: sql.database
+        host: keys.sql.host,
+        port: 8889,
+        user: keys.sql.user,
+        password: keys.sql.password,
+        database: keys.sql.database
     });
 
 // FUNCTIONS
 
-function start() {
+function storeFront() {
     let inventory = [];
     connection.query('SELECT * FROM products', function(err, res) {
         if (err) throw err;
+
         inventory = res;
-        console.log(
-            `Welcome to Kablamazon! Check out our inventory of random things. \n=== AVAILABLE PRODUCTS ===\n`
-        );
+
         console.table(inventory);
+
         inquirer
             .prompt([
                 {
@@ -42,55 +43,73 @@ function start() {
             ])
             .then(function(answers) {
                 let chosenItem = global.findItem(inventory, answers);
+                console.log(chosenItem);
                 if (typeof chosenItem !== 'object') {
-                    console.log(
+                    log(
                         chalk.bgRed.bold(
                             'Did not find that item. Please try again.'
                         )
                     );
-                    start();
+
+                    storeFront();
                     return;
                 }
+
                 if (chosenItem.stock_quantity > answers.quantity) {
-                    connection.query(
-                        'UPDATE products SET ? WHERE ?',
-                        [
-                            {
-                                stock_quantity:
-                                    chosenItem.stock_quantity - answers.quantity
-                            },
-                            {
-                                item_id: answers.item_id
-                            }
-                        ],
-                        function(err, res) {
-                            if (err) throw err;
-                            console.log(
-                                chalk.bgGreen.bold(
-                                    `Purchase complete. That set you back $${chosenItem.price *
-                                        answers.quantity}. Enjoy your ${
-                                        chosenItem.product_name
-                                    }!`
-                                )
-                            );
-                            connection.end();
-                        }
-                    );
+                    makeSale(chosenItem, answers);
                 } else {
-                    console.log(
+                    log(
                         chalk.bgRed.bold(
-                            chalk.bgRed.bold(
-                                'Insufficient stock, cannot complete purchase. Please, try again.'
-                            )
+                            'Insufficient stock, cannot complete purchase. Please, try again.'
                         )
                     );
-                    start();
+                    storeFront();
                 }
             });
     });
 }
 
+function makeSale(item, data) {
+    connection.query(
+        'UPDATE products SET ? WHERE ?',
+        [
+            {
+                stock_quantity:
+                    parseInt(item.stock_quantity) - parseInt(data.quantity),
+                sales: data.quantity
+            },
+            {
+                item_id: data.item_id
+            }
+        ],
+        function(err, res) {
+            if (err) throw err;
+            log(
+                chalk.bgGreen.bold(
+                    `Purchase complete. That set you back $${item.price *
+                        data.quantity}. Enjoy your ${item.product_name}!`
+                )
+            );
+            connection.end();
+        }
+    );
+}
+
 connection.connect(function(err) {
     if (err) throw err;
-    start();
+    log('                                              Welcome To');
+    log(
+        chalk.bgCyan
+            .bold(` __    __            __        __                                                                 
+/  |  /  |          /  |      /  |                                                                
+$$ | /$$/   ______  $$ |____  $$ |  ______   _____  ____    ______   ________   ______   _______  
+$$ |/$$/   /      \\ $$      \\ $$ | /      \\ /     \\/    \\  /      \\ /        | /      \\ /       \\ 
+$$  $$<    $$$$$$  |$$$$$$$  |$$ | $$$$$$  |$$$$$$ $$$$  | $$$$$$  |$$$$$$$$/ /$$$$$$  |$$$$$$$  |
+$$$$$  \\   /    $$ |$$ |  $$ |$$ | /    $$ |$$ | $$ | $$ | /    $$ |  /  $$/  $$ |  $$ |$$ |  $$ |
+$$ |$$  \\ /$$$$$$$ |$$ |__$$ |$$ |/$$$$$$$ |$$ | $$ | $$ |/$$$$$$$ | /$$$$/__ $$ \\__$$ |$$ |  $$ |
+$$ | $$  |$$    $$ |$$    $$/ $$ |$$    $$ |$$ | $$ | $$ |$$    $$ |/$$      |$$    $$/ $$ |  $$ |
+$$/   $$/  $$$$$$$/ $$$$$$$/  $$/  $$$$$$$/ $$/  $$/  $$/  $$$$$$$/ $$$$$$$$/  $$$$$$/  $$/   $$/ `)
+    );
+
+    storeFront();
 });
