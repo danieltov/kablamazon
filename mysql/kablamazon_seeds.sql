@@ -13,10 +13,10 @@ CREATE TABLE products (
 );
 
 CREATE TABLE departments (
-    departent_id int auto_increment not null, 
+    department_id int auto_increment not null, 
     department_name varchar(50) not null,
     overhead_costs decimal(10,2) not null,
-    primary key (departent_id)
+    primary key (department_id)
 );
 
 insert into products (product_name, department_name, price, stock_quantity, sales)

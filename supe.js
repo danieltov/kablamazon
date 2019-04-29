@@ -8,6 +8,7 @@ function supe() {
                 type: 'list',
                 name: 'action',
                 choices: [
+                    'See All Departments',
                     'See Sales Info by Department',
                     'Add Department',
                     'Exit'
@@ -16,6 +17,9 @@ function supe() {
         ])
         .then(function(answer) {
             switch (answer.action) {
+                case 'See All Departments':
+                    allDept();
+                    break;
                 case 'Add Department':
                     addDept();
                     break;
@@ -26,6 +30,24 @@ function supe() {
                     g.con.end();
             }
         });
+}
+
+function allDept() {
+    g.con.query('SELECT * FROM departments', function(err, res) {
+        if (err) throw err;
+
+        g.log(g.chalk.bgBlue.bold('Fetching the data...'));
+
+        g.log(
+            g.chalk.green(
+                '\n\n' + g.createTable(res, 'department_id', 'department_name')
+            )
+        );
+        g.log(
+            g.chalk.bgBlue.bold('Taking you back to the Supervisor Terminal...')
+        );
+        supe();
+    });
 }
 
 function addDept() {
