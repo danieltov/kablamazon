@@ -61,7 +61,34 @@ function insertDept(name, costs) {
     );
 }
 
-function sales() {}
+function sales() {
+    g.con.query(
+        `SELECT products.department_name, SUM(sales) AS total_sales, AVG(sales) AS avg_sales, AVG(price) AS avg_price, (SUM(sales) * AVG(price)) as revenue,
+departments.overhead_costs AS overhead, ((SUM(sales) * AVG(price))-departments.overhead_costs) AS profit
+FROM products
+JOIN departments ON products.department_name=departments.department_name
+GROUP BY products.department_name, overhead`,
+        function(err, res) {
+            if (err) throw err;
+
+            g.log(
+                g.chalk.green(
+                    '\n\n' +
+                        g.createTable(
+                            res,
+                            'department_name',
+                            'total_sales',
+                            'avg_sales',
+                            'avg_price',
+                            'revenue',
+                            'overhead',
+                            'profit'
+                        )
+                )
+            );
+        }
+    );
+}
 
 g.con.connect(function(err) {
     if (err) throw err;
