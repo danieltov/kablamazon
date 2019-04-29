@@ -76,7 +76,7 @@ function makeSale(item, data) {
         function(err, res) {
             if (err) throw err;
             g.log(
-                g.chalk.bgGreen.bold(
+                g.chalk.bgGreen.red.bold(
                     `Purchase complete. That set you back $${item.price *
                         data.quantity}. Enjoy your ${item.product_name}!`
                 )
@@ -88,7 +88,7 @@ function makeSale(item, data) {
 
 g.con.connect(function(err) {
     if (err) throw err;
-    g.log('                                              Welcome To');
+    g.log('\n\n\n                                              Welcome To');
     g.log(
         g.chalk.bgCyan
             .bold(` __    __            __        __                                                                 

@@ -56,6 +56,9 @@ function viewProducts() {
                     )
             )
         );
+        g.log(
+            g.chalk.bgBlue.bold('Taking you back to the Manager Terminal...')
+        );
         manager();
     });
 }
@@ -83,6 +86,9 @@ function lowInventory() {
                         'sales'
                     )
             )
+        );
+        g.log(
+            g.chalk.bgBlue.bold('Taking you back to the Manager Terminal...')
         );
         manager();
     });
@@ -175,6 +181,12 @@ function restock(id, stock) {
                                 )
                         )
                     );
+
+                    g.log(
+                        g.chalk.bgBlue.bold(
+                            'Taking you back to the Manager Terminal...'
+                        )
+                    );
                     manager();
                 }
             );
@@ -238,7 +250,7 @@ function createItem(name, dept, price, stock) {
 
 g.con.connect(function(err) {
     if (err) throw err;
-    g.log('                                              Welcome To');
+    g.log('\n\n\n                                              Welcome To');
     g.log(
         g.chalk.bgCyan
             .bold(` __    __            __        __                                                                 

@@ -50,12 +50,16 @@ function addDept() {
 
 function insertDept(name, costs) {
     g.con.query(
-        'INSERT INTO department SET ?',
+        'INSERT INTO departments SET ?',
         { department_name: name, overhead_costs: parseInt(costs) },
         function(err, res) {
             if (err) throw err;
             g.log(g.chalk.bgGreen.bold('Successfully added new department!'));
-            g.log(g.chalk.bgBlue.bold('\nTaking you back to the main menu...'));
+            g.log(
+                g.chalk.bgBlue.bold(
+                    'Taking you back to the Manager Terminal...'
+                )
+            );
             supe();
         }
     );
@@ -86,13 +90,19 @@ GROUP BY products.department_name, overhead`,
                         )
                 )
             );
+            g.log(
+                g.chalk.bgBlue.bold(
+                    'Taking you back to the Supervisor Terminal...'
+                )
+            );
+            supe();
         }
     );
 }
 
 g.con.connect(function(err) {
     if (err) throw err;
-    g.log('                                              Welcome To');
+    g.log('\n\n\n                                              Welcome To');
     g.log(
         g.chalk.bgCyan
             .bold(` __    __            __        __                                                                 
