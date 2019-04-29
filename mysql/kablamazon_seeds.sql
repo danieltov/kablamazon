@@ -31,3 +31,5 @@ VALUES ("Clothing", 1000), ("Pet Supplies", 1120), ("Housewares", 1750), ("Kitch
 -- FROM products
 -- JOIN departments ON products.department_name=departments.department_name
 -- GROUP BY products.department_name, overhead;
+
+-- FINISHED!!
